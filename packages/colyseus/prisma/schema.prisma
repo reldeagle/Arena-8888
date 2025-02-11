@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  username      String @id
+  displayName   String
+  characterSkin String @default("788")
+  userSalt      String
+  passwordHash  String
+  walletPubkey  String @default("")
+  clientId      String @default("not_logged_in")
+}
+
+model UserCharacters {
+  id       String  @id @default(uuid())
+  name     String
+  username String
+  selected Boolean
+
+  vitals Json
+  stats  Json
+  skills Json
+
+  rarity CharacterRarity
+
+  @@index([username])
+  @@index([username, selected])
+}
+
+enum CharacterRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  LEGENDARY
+  DEITY
+}
+
+model UserEquipment {
+  username  String @id
+  inventory Json
+  worn      Json
+  vault     Json // []
+}
+
+model ItemLibrary {
+  id        String   @id
+  name      String
+  type      ItemType
+  img       String //2d Image File
+  model     String //3d Model File
+  animation String //Animation to use when this item is used
+  data      Json // See ItemSchema
+  dropAmt   Int // the amount of the item that's dropped to the user during an airdrop (usually a stack size)
+}
+
+enum ItemType {
+  worn
+  buff
+  ammo
+  castable
+}
+
+model InjectionCredits {
+  cnft      String   @id
+  timestamp DateTime
+}
